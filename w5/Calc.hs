@@ -21,5 +21,10 @@ instance Expr ExprT where
   mul x y = Mul x y
   add x y = Add x y
 
+instance Expr Integer where
+  lit x = Lit x
+  mul x y = Mul x y
+  add x y = Add x y
+
 reify :: ExprT -> ExprT
 reify = id
