@@ -11,7 +11,15 @@ eval (Mul x y) = eval x * eval y
 evalStr :: String -> Maybe ExprT
 evalStr = parseExp Lit Add Mul
 
-{-instance ExprT Integer where
-  lit :: Integer -> ExprT
-  mul :: 
-  add :: -}
+class Expr a where
+  lit :: Integer -> a
+  mul :: a -> a -> a
+  add :: a -> a -> a
+
+instance Expr ExprT where
+  lit x = Lit x
+  mul x y = Mul x y
+  add x y = Add x y
+
+reify :: ExprT -> ExprT
+reify = id
