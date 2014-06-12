@@ -1,7 +1,6 @@
 fib :: Integer -> Integer
 fib i
-  | i == 0 = 0
-  | i == 1 = 1
+  | i <= 1    = i
   | otherwise = (fib (i-1)) + (fib (i-2))
 
 fibs1 :: [Integer]
