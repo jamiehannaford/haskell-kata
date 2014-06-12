@@ -20,3 +20,16 @@ streamToList (Cons x xs) = x : (streamToList xs)
 
 instance Show a => Show (Stream a) where
   show l = show . take 20 $ streamToList l
+
+streamRepeat :: a -> Stream a
+streamRepeat a = Cons a (streamRepeat a)
+
+listToStream :: [a] -> Stream a
+listToStream (x:xs) = Cons x (listToStream xs)
+
+-- e.g. let str = Cons 1 str in streamMap (+1) str
+streamMap :: (a -> b) -> Stream a -> Stream b
+streamMap f s = listToStream $ map f (streamToList s)
+
+streamFromSeed :: (a -> a) -> a -> Stream a
+streamFromSeed f x = Cons x (streamFromSeed f $ f x)
