@@ -33,3 +33,23 @@ streamMap f s = listToStream $ map f (streamToList s)
 
 streamFromSeed :: (a -> a) -> a -> Stream a
 streamFromSeed f x = Cons x (streamFromSeed f $ f x)
+
+{-- ex 5 --}
+nats :: Stream Integer
+nats = listToStream $ iterate (+1) 0
+
+findN :: Integer -> Integer
+findN 0 = 1
+findN n = maximum $ takeWhile (\x -> valExp n x) [1..]
+  where valExp n exp = (2*n) `mod` (2^exp) == 0
+
+interleaveStreams :: Stream a -> Stream a -> Stream a
+interleaveStreams (Cons a as) b = Cons a (interleaveStreams b as)
+
+ruler :: Stream Integer
+ruler = streamMap findN (listToStream $ iterate (+1) 1)
+
+ruler' :: Stream Integer
+ruler' = foldr1 interleaveStreams (map streamRepeat [1..])
+
+
