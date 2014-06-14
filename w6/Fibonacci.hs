@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-missing-methods #-}
+
 fib :: Integer -> Integer
 fib i
   | i <= 1    = i
@@ -52,4 +55,19 @@ ruler = streamMap findN (listToStream $ iterate (+1) 1)
 ruler' :: Stream Integer
 ruler' = foldr1 interleaveStreams (map streamRepeat [1..])
 
+{-- ex 6 --}
+x :: Stream Integer
+x = Cons 0 $ Cons 1 $ streamRepeat 0
 
+instance Num (Stream Integer) where
+  fromInteger n = Cons n $ streamRepeat 0
+  negate = streamMap (0-)
+  Cons a b + Cons x y = Cons (a + x) (b + y)
+  Cons a1 as * b@(Cons b1 bs) = Cons (a1*b1) (streamMap (*a1) bs + as*b)
+
+instance Fractional (Stream Integer) where
+  Cons a0 as / Cons b0 bs = q
+    where q = Cons (a0 `div` b0) $ streamMap (`div` b0) $ (as - q * bs)
+
+fibs3 :: Stream Integer
+fibs3 = x / (1 - x - x^2)
