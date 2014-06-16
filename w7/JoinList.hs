@@ -1,7 +1,12 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module JoinList where
 
 import Data.Monoid
 import Sized
+import Scrabble
+import Buffer
+import Editor
 
 data JoinList m a = Empty
                   | Single m a
@@ -54,3 +59,39 @@ dropJ i list = case list of
     else dropJ (i - size) right
     where size = getListSize left
   _ -> Empty
+
+takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+takeJ i _ | i <= 0 = Empty
+takeJ i list = case list of
+  (Append m left right) ->
+    if i < size
+    then takeJ i left
+    else left +++ (takeJ (i - size) right)
+    where size = getListSize left
+  _ -> list
+
+scoreLine :: String -> JoinList Score String
+scoreLine s = Single (scoreString s) s
+
+getScore :: Score -> Int
+getScore (Score x) = x
+
+instance Buffer (JoinList (Score, Size) String) where
+  toString = unlines . jlToList
+  fromString str = convert $ lines str
+    where convert [] = Empty
+          convert (x:xs) = (Single (scoreString x, Size 1) x) +++ convert xs
+  line = indexJ
+  replaceLine i s l = (takeJ i l) +++ Single (scoreString s, Size 1) s +++ (dropJ (i+1) l)
+  numLines = getSize . snd . tag 
+  value = getScore . fst . tag
+
+buffer :: String -> JoinList (Score, Size) String
+buffer = fromString
+
+main = runEditor editor $ buffer $ unlines
+         [ "This buffer is for notes you don't want to save, and for"
+         , "evaluation of steam valve coefficients."
+         , "To load a different file, type the character L followed"
+         , "by the name of the file."
+         ] 
