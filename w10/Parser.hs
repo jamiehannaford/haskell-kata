@@ -56,3 +56,13 @@ abParser_ = pure (const ()) <*> abParser
 
 intPair :: Parser [Integer]
 intPair = (\x _ z -> [x,z]) <$> posInt <*> char ' ' <*> posInt
+
+instance Alternative Parser where
+  empty = Parser $ const Nothing
+  (Parser x) <|> (Parser y) = Parser $ \s -> x s <|> y s
+
+ignore :: Parser a -> Parser ()
+ignore = (pure (const ()) <*>)
+
+intOrUppercase :: Parser ()
+intOrUppercase = ignore posInt <|> ignore (satisfy isUpper)
