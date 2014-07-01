@@ -6,6 +6,7 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Random
 import Data.List
+import Data.Char
 
 ------------------------------------------------------------
 -- Die values
@@ -52,3 +53,17 @@ battle bF = do
         else
           return $ Battlefield (aC - 1) dC
 
+gameIsOver :: Battlefield -> Bool
+gameIsOver b = if attackers b < 2 || defenders b == 0 then True else False
+
+eval b = do
+  values <- evalRandIO b
+  putStrLn $ (show $ attackers values) ++ "-" ++ (show $ defenders values)
+
+invade :: Battlefield -> Rand StdGen Battlefield
+invade b = do
+  let act = battle b
+  result <- act
+  if gameIsOver result
+  then act
+  else invade result
