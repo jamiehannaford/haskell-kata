@@ -67,3 +67,10 @@ invade b = do
   if gameIsOver result
   then act
   else invade result
+
+successProb :: Battlefield -> Rand StdGen Double
+successProb b = do
+  let filtered f = filter (\x -> if attackers x < 2 then False else True) f
+  r <- sequence $ replicateM 1000 invade $ b
+  return $ (fromIntegral $ length (filtered r)) / 1000
+
